@@ -7,27 +7,37 @@ main = """
 
 saldo = 0
 saque_maximo= 500
-extrato = ""
+extrato = []
 numero_de_saques = 0
 LIMITE_DE_SAQUES = 3
 
 while True:
 
-    opcao_escolhida = input(main)
+    opcao_escolhida = input(main).lower()
 
     if opcao_escolhida == "a":
         deposito = float(input("Valor a depositar: "))
         if deposito > 0:
-            saldo == deposito
-            extrato == f"Deposito: R${deposito:.2f}\n"
+            saldo += deposito
+            extrato.append (f"Deposito de {deposito}")
         else:
             print("Operaçao falhou ou valor informado invalido")
     elif opcao_escolhida == "b":
-        saque = float(input ("Valor a sacar: "))
-        excedeu_saldo = valor > saldo
-        excedeu_limite = valor > saque_maximo
+        saque = float(input("Valor a sacar: "))
+        excedeu_saldo = saque > saldo
+        excedeu_limite = saque > saque_maximo
         excedeu_saques = numero_de_saques >= LIMITE_DE_SAQUES
 
+
+        while True:
+            if saque:
+                saldo -= saque
+                extrato.append (f"Saque de {saque}")
+                numero_de_saques += 1
+                if not excedeu_saques:
+                    print (f"Saque de: {saque}, realizado com sucesso")
+            break
+            
 
         if excedeu_saldo:
             print ("Operaçao falhou! Voce nao tem saldo suficiente")
@@ -36,7 +46,7 @@ while True:
         elif excedeu_saques:
             print ("Operaçao falhou! Voce nao tem saques disponiveis")
         else:
-            print ("Valor informado invalido")
+            pass
     elif opcao_escolhida == "c":
         print ("\n=====================EXTRATO=====================")
         print ("Nao foram realizadas movimentaçoes." if not extrato else extrato)
@@ -46,6 +56,6 @@ while True:
     elif opcao_escolhida == "d":
         break
     else:
-        print("Operaçao invalida, por favor selecione uma opão")
+        print("Operaçao invalida, por favor selecione uma opção")
 
 
