@@ -1,3 +1,6 @@
+#criado por mim
+
+
 main = """
 [a]Deposito
 [b]Saque
@@ -14,7 +17,6 @@ LIMITE_DE_SAQUES = 3
 while True:
 
     opcao_escolhida = input(main).lower()
-
     if opcao_escolhida == "a":
         deposito = float(input("Valor a depositar: "))
         if deposito > 0:
