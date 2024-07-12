@@ -25,6 +25,7 @@ def main():
     numero_de_saques = 0
     usuarios = []
     contas = []
+    limite = 500
 
     while True:
         opcao = menu()
@@ -33,7 +34,7 @@ def main():
             valor = float(input ("Informe o valor do deposito: "))
             saldo, extrato = depositar(saldo,valor,extrato)
         elif opcao == "b":
-            valor = float(input("Informe o valor do saque"))
+            valor = float(input("Informe o valor do saque: "))
             saldo,extrato = sacar(
                 saldo=saldo,
                 valor=valor,
@@ -61,7 +62,7 @@ def main():
 def depositar(saldo, valor, extrato, /):
     if valor > 0:
         saldo += valor
-        extrato += f"deposito:\tR$ {valor:.2f}\n"
+        extrato += f"deposito: R$ {valor:.2f}\n"
         print("\nDeposito realizado com sucesso!")
     else:
         print("Operaçao falhou, valor informado invalido")
@@ -80,7 +81,7 @@ def sacar(*, saldo, valor, extrato, limite, numero_de_saques, limite_saques):
         print("\n Operaçao falhou! Você nao tem saques suficiente.")
     elif valor > 0:
         saldo -= valor
-        extrato += f"Saque:\t\tR$ {valor:.2f}\n"
+        extrato += f"Saque:\tR$ {valor:.2f}\n"
         numero_de_saques += 1
         print ("\n Saque relizado com sucesso!")
     else:
