@@ -160,15 +160,16 @@ class Deposito(Transacao):
         if sucesso_transacao:
             conta.historico.adicionar_transacao(self)
 
+
 def menu():
     menu = """\n
-    [a]\tDeposito
-    [b]\tSaque
-    [c]\tExtrato
-    [s]\tNova conta 
-    [f]\tListar contas
-    [g]\tNovo usuario
-    [d]\tSair
+    [d]\tDeposito
+    [s]\tSaque
+    [e]\tExtrato
+    [nc]\tNova conta 
+    [lc]\tListar contas
+    [new]\tNovo cliente
+    [q]\tSair
     """
     return input(textwrap.dedent(menu))
 
@@ -280,3 +281,42 @@ def exibir_extrato (clientes):
     print ("____________________________________")
 
 #proximo passo, criar conta
+
+def criar_conta(numero_conta, clientes, contas):
+    cpf = input("Informe o CPF do cliente")
+    cliente = filtrar_cliente(cpf, clientes)
+
+    if not cliente:
+        print ("\n Cliente não encontrado, fluxo de criação de conta encerrado")
+        return
+    
+    conta = Conta_Corrente.nova_conta(cliente=cliente, numero=numero_conta)
+    contas.append(conta)
+    cliente.contas.append(conta)
+
+    print ("\nConta criada com sucesso!")
+
+def listar_contas(contas):
+    for conta in contas:
+        print ("="*100)
+        print (textwrap.dedent(str(conta)))
+
+def criar_cliente(clientes):
+    cpf = input("Informe o CPF(somente numeros): ")
+    cliente = filtrar_cliente(cpf, clientes)
+
+    if cliente:
+        print("\n Ja existe um usuario com este CPF")
+        return
+    
+    nome = input("Informe seu nome completo: ")
+    data_nascimento = input("informe a data de nascimento (dd-mm-aaaa): ")
+    endereco = input("Informe o endereço (logradouro, nmr, bairro, cidade, estado): ")
+
+    cliente = Pessoa_Fisica(nome=nome, data_nascimento=data_nascimento, cpf=cpf, endereco=endereco)
+
+    clientes.append(cliente)
+    print ("\nCliente criado com sucesso!")
+
+
+main()
