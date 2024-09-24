@@ -1,4 +1,6 @@
 from abc import ABC, abstractclassmethod, abstractproperty
+import textwrap
+
 
 class Cliente:
      def __init__(self, endereco):
@@ -16,7 +18,7 @@ class Pessoa_Fisica(Cliente):
         super().__init__(endereco)
         self.nome = nome
         self.data_nascimento = data_nascimento
-        self.cpf = cpf      
+        self.cpf = cpf     
 
 class Conta:
      def __init__(self, numero, cliente):    
@@ -63,16 +65,18 @@ class Conta:
             return True
          else:
             print ("\n Operação falhou, valor informado invalido")
-            return False
+        
+         return False
      @property
      def depositor(self, valor):
          if valor > 0:
             self._saldo += valor
             print("\nDeposito realizado com sucesso!")
-            return True
          else:
             print("Operaçao falhou, valor informado invalido")
             return False
+         
+         return True
 
 class Conta_Corrente (Conta):
     def __init__(self, numero, cliente, limite = 500, limite_saque = 3):
@@ -155,3 +159,124 @@ class Deposito(Transacao):
         sucesso_transacao = conta.depositar(self.valor)
         if sucesso_transacao:
             conta.historico.adicionar_transacao(self)
+
+def menu():
+    menu = """\n
+    [a]\tDeposito
+    [b]\tSaque
+    [c]\tExtrato
+    [s]\tNova conta 
+    [f]\tListar contas
+    [g]\tNovo usuario
+    [d]\tSair
+    """
+    return input(textwrap.dedent(menu))
+
+def main():
+
+
+    clientes = []
+    contas = []
+
+
+    while True:
+        opcao = menu()
+
+        if opcao == "d":
+            depositar(clientes)
+
+        elif opcao == "s":
+            sacar(clientes)
+
+        elif opcao == "e":
+            exibir_extrato(clientes)
+
+        elif opcao == "new":
+            criar_cliente(clientes)
+
+        elif opcao == "nc":
+            numero_conta = len(contas) + 1
+            criar_conta(numero_conta, clientes, contas)
+
+        elif opcao == "lc":
+            listar_contas(contas)
+
+        elif opcao == "q":
+            break
+
+        else:
+            print("Operaçao invalida, tente novamente")
+        
+def filtrar_cliente(cpf, clientes):
+    clientes_filtrados = [cliente for cliente in clientes if cliente.cpf == cpf]
+    return clientes_filtrados[0] if clientes_filtrados else None
+
+def recuperar_conta_cliente(cliente): 
+    if not cliente.contas:
+        print ("\nCliente nao possui conta!")
+        return
+    #FIXME: nao permite cliente escolher a conta
+    return cliente.contas[0]
+
+def depositar(clientes):
+    cpf = input("Informe o CPf do cliente: ")
+    cliente = filtrar_cliente(cpf, clientes)
+
+    if not cliente:
+        print("\nCliente nao encontrado!")
+        return
+    
+    valor = float(input("Informe o valor do deposito: "))
+    transacao = Deposito(valor)
+
+    conta = recuperar_conta_cliente(cliente)
+    if not conta:
+        return
+    
+    cliente.realizar_transacao(conta, transacao)
+
+def sacar(clientes):
+    cpf = input("Informe o CPF do cliente: ")
+    cliente = filtrar_cliente(cpf, clientes)
+
+    if not cliente:
+        print("\nCliente nao encontrado!")
+        return
+    
+    valor = float(input("Informe o valor do saque: "))
+    transacao = Saque(valor)
+
+    conta = recuperar_conta_cliente(cliente)
+    if not conta:
+        return
+    
+    cliente.realizar_transacao(conta, transacao)
+
+def exibir_extrato (clientes):
+
+    cpf = input("Informe o CPF do cliente: ")
+    cliente = filtrar_cliente(cpf, clientes)
+
+    if not cliente:
+        print("\nCliente nao encontrado!")
+        return
+    
+    conta = recuperar_conta_cliente(cliente)
+    if not conta:
+        return
+    
+    print ("\n_________________EXTRATO_________________")
+    transacoes = conta.historico.transacoes
+
+    extrato = ""
+    if not transacoes:
+        extrato = "Nao foram realizadas movimentações"
+    else:
+        for transacao in transacoes:
+            extrato == f"\n{transacao['tipo']}\n\tR${transacao['valor']:.2f}"
+
+    print (extrato)
+    print (f"\nSaldo:\n\tR$ {conta.saldo:.2f}")
+    print ("____________________________________")
+
+#proximo passo, criar conta
