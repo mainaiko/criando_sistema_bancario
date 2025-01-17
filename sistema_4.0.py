@@ -1,9 +1,8 @@
+import csv
+import textwrap
 from abc import ABC, abstractmethod
 from datetime import datetime
-import textwrap
-import csv
 from pathlib import Path
-
 
 
 class Cliente:
@@ -19,7 +18,6 @@ class Cliente:
         if transacao.registrar(conta):
             conta.historico.adicionar_transacao(transacao)
 
-    
     def adicionar_conta(self, conta):
         self.contas.append(conta)  # Alterado para 'contas'
 
@@ -29,10 +27,10 @@ class Pessoa_Fisica(Cliente):
         super().__init__(endereco)
         self.nome = nome
         self.data_nascimento = data_nascimento
-        self.cpf = cpf    
+        self.cpf = cpf
 
     def __repr__(self):
-        return f"<{self.__class__.__name__}: ({self.cpf})>" 
+        return f"<{self.__class__.__name__}: ({self.cpf})>"
 
 
 class Conta:
@@ -45,7 +43,7 @@ class Conta:
 
     @classmethod
     def nova_conta(cls, cliente, numero):
-        return cls(numero, cliente) 
+        return cls(numero, cliente)
 
     @property
     def saldo(self):
@@ -99,7 +97,9 @@ class Conta_Corrente(Conta):
     def sacar(self, valor):
         numero_saques = len(
             [
-            transacao for transacao in self.historico.transacoes if transacao["tipo"] == "Saque"
+                transacao
+                for transacao in self.historico.transacoes
+                if transacao["tipo"] == "Saque"
             ]
         )
         if valor > self.saldo + self.limite:
@@ -110,7 +110,7 @@ class Conta_Corrente(Conta):
             return False
         else:
             return super().sacar(valor)
-        
+
     def __repr__(self):
         return f"<{self.__class__.__name__}: ('{self.cliente}', '{self.numero}''{self.cliente.nome}')>"
 
@@ -135,20 +135,25 @@ class Historico:
             {
                 "tipo": transacao.__class__.__name__,
                 "valor": transacao.valor,
-                "data": datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+                "data": datetime.now().strftime("%d-%m-%Y %H:%M:%S"),
             }
         )
 
     def gerar_relatorio(self, tipo_transacao=None):
         for transacao in self._transacoes:
-            if tipo_transacao is None or transacao["tipo"].lower() == tipo_transacao.lower():
+            if (
+                tipo_transacao is None
+                or transacao["tipo"].lower() == tipo_transacao.lower()
+            ):
                 yield transacao
 
     def transacoes_dia(self):
         data_atual = datetime.now().date()
         Transacoes = []
         for transacao in self._transacoes:
-            data_transacao = datetime.strptime(transacao["data"], "%d-%m-%Y %H:%M:%S").date()
+            data_transacao = datetime.strptime(
+                transacao["data"], "%d-%m-%Y %H:%M:%S"
+            ).date()
             if data_atual == data_transacao:
                 Transacoes.append(transacao)
         return Transacoes
@@ -203,12 +208,14 @@ def log_transaçao(func):
         ROOT_PATH = Path(__file__).parent
 
         try:
-            with open(ROOT_PATH / "log.txt", 'w', encoding='utf-8') as file:
+            with open(ROOT_PATH / "log.txt", "w", encoding="utf-8") as file:
                 file.writelines(log_mesage)
 
         except IOError as exc:
-            print ("erro = {exc}")
+            print("erro = {exc}")
+
     return envelope
+
 
 def menu():
     opcoes = """\n
@@ -270,6 +277,7 @@ def recuperar_conta_cliente(cliente):
         return None
     return cliente.contas[0]  # Alterado para 'contas'
 
+
 @log_transaçao
 def depositar(clientes):
     cpf = input("Informe o CPF do cliente: ")
@@ -278,15 +286,16 @@ def depositar(clientes):
     if not cliente:
         print("\nCliente não encontrado!")
         return
-    
+
     valor = float(input("Informe o valor do depósito: "))
     transacao = Deposito(valor)
 
     conta = recuperar_conta_cliente(cliente)
     if not conta:
         return
-    
+
     cliente.realizar_transacao(conta, transacao)
+
 
 @log_transaçao
 def sacar(clientes):
@@ -296,15 +305,16 @@ def sacar(clientes):
     if not cliente:
         print("\nCliente não encontrado!")
         return
-    
+
     valor = float(input("Informe o valor do saque: "))
     transacao = Saque(valor)
 
     conta = recuperar_conta_cliente(cliente)
     if not conta:
         return
-    
+
     cliente.realizar_transacao(conta, transacao)
+
 
 @log_transaçao
 def exibir_extrato(clientes):
@@ -314,11 +324,11 @@ def exibir_extrato(clientes):
     if not cliente:
         print("\nCliente não encontrado!")
         return
-    
+
     conta = recuperar_conta_cliente(cliente)
     if not conta:
         return
-    
+
     print("\n_________________EXTRATO_________________")
     extrato = ""
     tem_transacao = False
@@ -328,10 +338,11 @@ def exibir_extrato(clientes):
 
     if not tem_transacao:
         extrato = "Nao foram realizadas movimentações"
-    
-    print (extrato)
+
+    print(extrato)
     print(f"\nSaldo: R$ {conta.saldo:.2f}")
     print("____________________________________")
+
 
 @log_transaçao
 def criar_conta(numero_conta, clientes, contas):
@@ -341,7 +352,7 @@ def criar_conta(numero_conta, clientes, contas):
     if not cliente:
         print("\nCliente não encontrado, fluxo de criação de conta encerrado.")
         return
-    
+
     conta = Conta_Corrente.nova_conta(cliente=cliente, numero=numero_conta)
     contas.append(conta)
     cliente.adicionar_conta(conta)  # Alterado para usar o método
@@ -351,8 +362,9 @@ def criar_conta(numero_conta, clientes, contas):
 
 def listar_contas(contas):
     for conta in contas:
-        print("="*100)
+        print("=" * 100)
         print(textwrap.dedent(str(conta)))
+
 
 @log_transaçao
 def criar_cliente(clientes):
@@ -362,12 +374,14 @@ def criar_cliente(clientes):
     if cliente:
         print("\nJá existe um usuário com este CPF.")
         return
-    
+
     nome = input("Informe seu nome completo: ")
     data_nascimento = input("Informe a data de nascimento (dd-mm-aaaa): ")
     endereco = input("Informe o endereço (logradouro, nmr, bairro, cidade, estado): ")
 
-    cliente = Pessoa_Fisica(nome=nome, data_nascimento=data_nascimento, cpf=cpf, endereco=endereco)
+    cliente = Pessoa_Fisica(
+        nome=nome, data_nascimento=data_nascimento, cpf=cpf, endereco=endereco
+    )
 
     clientes.append(cliente)
     print("\nCliente criado com sucesso!")
