@@ -95,13 +95,7 @@ class Conta_Corrente(Conta):
         self.limite_saque = limite_saque
 
     def sacar(self, valor):
-        numero_saques = len(
-            [
-                transacao
-                for transacao in self.historico.transacoes
-                if transacao["tipo"] == "Saque"
-            ]
-        )
+        numero_saques = len([transacao for transacao in self.historico.transacoes if transacao["tipo"] == "Saque"])
         if valor > self.saldo + self.limite:
             print("\nOperação falhou! Você não tem limite suficiente.")
             return False
@@ -141,19 +135,14 @@ class Historico:
 
     def gerar_relatorio(self, tipo_transacao=None):
         for transacao in self._transacoes:
-            if (
-                tipo_transacao is None
-                or transacao["tipo"].lower() == tipo_transacao.lower()
-            ):
+            if tipo_transacao is None or transacao["tipo"].lower() == tipo_transacao.lower():
                 yield transacao
 
     def transacoes_dia(self):
         data_atual = datetime.now().date()
         Transacoes = []
         for transacao in self._transacoes:
-            data_transacao = datetime.strptime(
-                transacao["data"], "%d-%m-%Y %H:%M:%S"
-            ).date()
+            data_transacao = datetime.strptime(transacao["data"], "%d-%m-%Y %H:%M:%S").date()
             if data_atual == data_transacao:
                 Transacoes.append(transacao)
         return Transacoes
@@ -379,9 +368,7 @@ def criar_cliente(clientes):
     data_nascimento = input("Informe a data de nascimento (dd-mm-aaaa): ")
     endereco = input("Informe o endereço (logradouro, nmr, bairro, cidade, estado): ")
 
-    cliente = Pessoa_Fisica(
-        nome=nome, data_nascimento=data_nascimento, cpf=cpf, endereco=endereco
-    )
+    cliente = Pessoa_Fisica(nome=nome, data_nascimento=data_nascimento, cpf=cpf, endereco=endereco)
 
     clientes.append(cliente)
     print("\nCliente criado com sucesso!")
